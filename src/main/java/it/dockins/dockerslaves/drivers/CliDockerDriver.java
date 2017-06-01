@@ -342,16 +342,18 @@ public class CliDockerDriver extends DockerDriver {
 
     @Override
     public void removeContainer(TaskListener listener, Container instance) throws IOException, InterruptedException {
-        ArgumentListBuilder args = new ArgumentListBuilder()
-                .add("rm", "-f", instance.getId());
+        if (hasContainer(listener, instance.getId())) {
+            ArgumentListBuilder args = new ArgumentListBuilder()
+                    .add("rm", "-f", instance.getId());
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        Launcher launcher = new Launcher.LocalLauncher(listener);
-        int status = launchDockerCLI(launcher, args)
-                .stdout(out).stderr(launcher.getListener().getLogger()).join();
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            Launcher launcher = new Launcher.LocalLauncher(listener);
+            int status = launchDockerCLI(launcher, args)
+                    .stdout(out).stderr(launcher.getListener().getLogger()).join();
 
-        if (status != 0) {
-            throw new IOException("Failed to remove container " + instance.getId());
+            if (status != 0) {
+                throw new IOException("Failed to remove container " + instance.getId());
+            }
         }
     }
 
